@@ -24,6 +24,7 @@ pytest -v                    # подробный вывод / verbose
 pytest tests/test_importer.py            # один файл / a single file
 pytest tests/test_stages.py::test_next_deadline_skips_completed_and_undated  # один тест / one test
 pytest -k import             # по подстроке имени / by name substring
+pytest --cov=app --cov-report=term-missing   # покрытие / coverage (as in CI)
 ```
 
 Ожидаемо: `14 passed`. / Expected: `14 passed`.
