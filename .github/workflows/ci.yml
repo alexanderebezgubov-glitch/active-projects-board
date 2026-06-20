@@ -45,4 +45,5 @@ jobs:
         run: pip install -r requirements-dev.txt
 
       - name: Run tests
-        run: pytest
+        # -o addopts= очищает -q из pytest.ini, чтобы -v дал полный список тестов.
+        run: pytest -o addopts= -v
