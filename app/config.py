@@ -1,4 +1,5 @@
 """Конфигурация приложения из переменных окружения. / App configuration from env vars."""
+
 import os
 
 from dotenv import load_dotenv

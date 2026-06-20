@@ -6,6 +6,7 @@ Business API (Twilio / 360dialog) — см. ``send_whatsapp`` ниже как з
 WhatsApp is intentionally a separate stub: wire it later via the WhatsApp
 Business API (Twilio / 360dialog) — see ``send_whatsapp`` below.
 """
+
 from __future__ import annotations
 
 import logging

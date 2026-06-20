@@ -12,6 +12,7 @@ Long format, one row = one stage deadline of one project. Projects are created
 if missing, otherwise the named stages are updated. Stages not listed are left
 untouched. Column headers are matched case-insensitively in RU and EN.
 """
+
 from __future__ import annotations
 
 import csv
@@ -28,8 +29,15 @@ from .stages import STAGE_COUNT
 _HEADERS = {
     "project": {"project", "проект", "объект", "name", "название"},
     "stage": {"stage", "stage_index", "этап", "stage_no", "№", "no", "номер этапа"},
-    "planned_date": {"planned_date", "date", "дата", "дедлайн", "deadline", "срок",
-                     "плановая дата"},
+    "planned_date": {
+        "planned_date",
+        "date",
+        "дата",
+        "дедлайн",
+        "deadline",
+        "срок",
+        "плановая дата",
+    },
     "completed": {"completed", "done", "выполнено", "готово", "completed?", "status"},
 }
 _TRUE = {"1", "yes", "y", "true", "да", "готово", "done", "x", "✓", "+"}
@@ -69,8 +77,9 @@ def _parse_csv(content: bytes) -> list[dict]:
         return []
     header_map = {i: _norm_header(h) for i, h in enumerate(rows[0])}
     if "project" not in header_map.values() or "stage" not in header_map.values():
-        raise ImportError_("Не найдены колонки 'project' и 'stage'. / "
-                           "Columns 'project' and 'stage' are required.")
+        raise ImportError_(
+            "Не найдены колонки 'project' и 'stage'. / Columns 'project' and 'stage' are required."
+        )
     out: list[dict] = []
     for raw in rows[1:]:
         rec = {}
@@ -91,11 +100,11 @@ def _parse_xlsx(content: bytes) -> list[dict]:
     rows = list(ws.iter_rows(values_only=True))
     if not rows:
         return []
-    header_map = {i: _norm_header(str(h) if h is not None else "")
-                  for i, h in enumerate(rows[0])}
+    header_map = {i: _norm_header(str(h) if h is not None else "") for i, h in enumerate(rows[0])}
     if "project" not in header_map.values() or "stage" not in header_map.values():
-        raise ImportError_("Не найдены колонки 'project' и 'stage'. / "
-                           "Columns 'project' and 'stage' are required.")
+        raise ImportError_(
+            "Не найдены колонки 'project' и 'stage'. / Columns 'project' and 'stage' are required."
+        )
     out: list[dict] = []
     for raw in rows[1:]:
         rec = {}
@@ -129,8 +138,10 @@ def _to_stage(value) -> int:
     # допускаем "6" и "6. Возведение..." / accept "6" and "6. ..."
     head = text.split(".", 1)[0].split()[0] if text else ""
     if not head.isdigit():
-        raise ImportError_(f"Этап должен быть числом 1..{STAGE_COUNT}: '{text}' / "
-                           f"Stage must be a number 1..{STAGE_COUNT}: '{text}'")
+        raise ImportError_(
+            f"Этап должен быть числом 1..{STAGE_COUNT}: '{text}' / "
+            f"Stage must be a number 1..{STAGE_COUNT}: '{text}'"
+        )
     n = int(head)
     if not 1 <= n <= STAGE_COUNT:
         raise ImportError_(f"Этап вне диапазона 1..{STAGE_COUNT}: {n}")

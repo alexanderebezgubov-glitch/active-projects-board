@@ -1,4 +1,5 @@
 """Подключение к базе и сессии SQLAlchemy. / Database engine and sessions."""
+
 from collections.abc import Iterator
 
 from sqlalchemy import create_engine

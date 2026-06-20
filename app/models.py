@@ -6,6 +6,7 @@
 The 29 stages are a fixed catalog in ``stages.py``; the DB stores each
 project's progress over those stages (planned date + completion flag).
 """
+
 from __future__ import annotations
 
 from datetime import date, datetime
@@ -96,6 +97,7 @@ class ProjectStage(Base):
 
 class ReminderLog(Base):
     """Чтобы не слать один и тот же пинг дважды. / Dedup sent reminders."""
+
     __tablename__ = "reminder_log"
     __table_args__ = (
         UniqueConstraint("project_id", "stage_index", "days_before", name="uq_reminder"),

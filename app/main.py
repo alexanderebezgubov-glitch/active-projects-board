@@ -1,4 +1,5 @@
 """FastAPI-приложение: маршруты, шаблоны, запуск. / FastAPI app: routes, templates."""
+
 from __future__ import annotations
 
 from datetime import date, datetime
@@ -42,16 +43,19 @@ def _seed_admin() -> None:
 
     with SessionLocal() as db:
         if db.scalar(select(User).limit(1)) is None:
-            db.add(User(
-                username="admin",
-                password_hash=hash_password("admin"),
-                lang="ru",
-                is_admin=True,
-            ))
+            db.add(
+                User(
+                    username="admin",
+                    password_hash=hash_password("admin"),
+                    lang="ru",
+                    is_admin=True,
+                )
+            )
             db.commit()
 
 
 # --- Хелперы / helpers ---
+
 
 def get_lang(request: Request, user: User | None) -> str:
     lang = request.session.get("lang")
@@ -86,6 +90,7 @@ def require_user(request: Request, db: Session) -> User | RedirectResponse:
 
 # --- Аутентификация / auth routes ---
 
+
 @app.get("/login", response_class=HTMLResponse)
 def login_form(request: Request, db: Session = Depends(get_session)):
     user = current_user(request, db)
@@ -96,8 +101,12 @@ def login_form(request: Request, db: Session = Depends(get_session)):
 
 
 @app.post("/login")
-def login_submit(request: Request, username: str = Form(...), password: str = Form(...),
-                 db: Session = Depends(get_session)):
+def login_submit(
+    request: Request,
+    username: str = Form(...),
+    password: str = Form(...),
+    db: Session = Depends(get_session),
+):
     user = authenticate(db, username, password)
     lang = get_lang(request, None)
     if not user:
@@ -127,6 +136,7 @@ def set_lang(lang: str, request: Request, db: Session = Depends(get_session)):
 
 # --- Доска / board ---
 
+
 @app.get("/", response_class=HTMLResponse)
 def board(request: Request, db: Session = Depends(get_session)):
     user = require_user(request, db)
@@ -152,23 +162,25 @@ def board(request: Request, db: Session = Depends(get_session)):
             status = "soon"
         else:
             status = "ok"
-        rows.append({
-            "project": p,
-            "stage_index": idx,
-            "deadline": deadline,
-            "days_left": days_left,
-            "status": status,
-            "completed": p.completed_count,
-        })
+        rows.append(
+            {
+                "project": p,
+                "stage_index": idx,
+                "deadline": deadline,
+                "days_left": days_left,
+                "status": status,
+                "completed": p.completed_count,
+            }
+        )
     rows.sort(key=lambda r: (r["deadline"] is None, r["deadline"] or date.max))
     return render(request, "board.html", lang, user, rows=rows)
 
 
 # --- Проекты / projects ---
 
+
 @app.post("/projects/new")
-def create_project(request: Request, name: str = Form(...),
-                   db: Session = Depends(get_session)):
+def create_project(request: Request, name: str = Form(...), db: Session = Depends(get_session)):
     user = require_user(request, db)
     if isinstance(user, RedirectResponse):
         return user
@@ -193,13 +205,11 @@ def project_detail(project_id: int, request: Request, db: Session = Depends(get_
         return RedirectResponse("/", status_code=303)
     ensure_stage_rows(project)
     db.commit()
-    return render(request, "project.html", lang, user,
-                  project=project, stage_map=project.stage_map)
+    return render(request, "project.html", lang, user, project=project, stage_map=project.stage_map)
 
 
 @app.post("/projects/{project_id}")
-async def update_project(project_id: int, request: Request,
-                         db: Session = Depends(get_session)):
+async def update_project(project_id: int, request: Request, db: Session = Depends(get_session)):
     user = require_user(request, db)
     if isinstance(user, RedirectResponse):
         return user
@@ -241,6 +251,7 @@ def delete_project(project_id: int, request: Request, db: Session = Depends(get_
 
 # --- Импорт CSV/Excel / CSV-Excel import ---
 
+
 @app.get("/import", response_class=HTMLResponse)
 def import_form(request: Request, db: Session = Depends(get_session)):
     user = require_user(request, db)
@@ -263,8 +274,9 @@ def import_template(request: Request, db: Session = Depends(get_session)):
 
 
 @app.post("/import", response_class=HTMLResponse)
-async def import_run(request: Request, file: UploadFile = File(...),
-                     db: Session = Depends(get_session)):
+async def import_run(
+    request: Request, file: UploadFile = File(...), db: Session = Depends(get_session)
+):
     user = require_user(request, db)
     if isinstance(user, RedirectResponse):
         return user
@@ -276,12 +288,14 @@ async def import_run(request: Request, file: UploadFile = File(...),
     except ImportError_ as exc:
         return render(request, "import.html", lang, user, result=None, error=str(exc))
     except Exception as exc:  # noqa: BLE001
-        return render(request, "import.html", lang, user, result=None,
-                      error=f"{type(exc).__name__}: {exc}")
+        return render(
+            request, "import.html", lang, user, result=None, error=f"{type(exc).__name__}: {exc}"
+        )
     return render(request, "import.html", lang, user, result=result, error=None)
 
 
 # --- Настройки пользователя / user settings ---
+
 
 @app.get("/settings", response_class=HTMLResponse)
 def settings_form(request: Request, db: Session = Depends(get_session)):
@@ -293,8 +307,13 @@ def settings_form(request: Request, db: Session = Depends(get_session)):
 
 
 @app.post("/settings")
-def settings_save(request: Request, email: str = Form(""), telegram_chat_id: str = Form(""),
-                  lang_pref: str = Form("ru"), db: Session = Depends(get_session)):
+def settings_save(
+    request: Request,
+    email: str = Form(""),
+    telegram_chat_id: str = Form(""),
+    lang_pref: str = Form("ru"),
+    db: Session = Depends(get_session),
+):
     user = require_user(request, db)
     if isinstance(user, RedirectResponse):
         return user
@@ -307,6 +326,7 @@ def settings_save(request: Request, email: str = Form(""), telegram_chat_id: str
 
 
 # --- Ручной запуск проверки (для отладки) / manual check trigger ---
+
 
 @app.post("/admin/run-check")
 def run_check(request: Request, db: Session = Depends(get_session)):

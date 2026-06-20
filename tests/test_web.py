@@ -3,6 +3,7 @@
 Стартовый хук приложения создаёт пользователя admin/admin и таблицы.
 The app startup hook seeds admin/admin and the tables.
 """
+
 from fastapi.testclient import TestClient
 
 from app.main import app
@@ -15,8 +16,9 @@ def test_login_required_and_board_accessible():
         assert resp.status_code == 303
 
         # вход admin/admin / sign in
-        resp = client.post("/login", data={"username": "admin", "password": "admin"},
-                           follow_redirects=False)
+        resp = client.post(
+            "/login", data={"username": "admin", "password": "admin"}, follow_redirects=False
+        )
         assert resp.status_code == 303
 
         board = client.get("/")

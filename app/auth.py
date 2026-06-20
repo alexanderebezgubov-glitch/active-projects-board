@@ -2,6 +2,7 @@
 
 Auth helpers: password hashing and current-user lookup from the session.
 """
+
 from fastapi import Request
 from passlib.context import CryptContext
 from sqlalchemy import select

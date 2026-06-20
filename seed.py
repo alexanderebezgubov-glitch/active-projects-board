@@ -3,6 +3,7 @@
 Запуск: python seed.py   (создаёт пару проектов и пользователя admin/admin)
 Run:    python seed.py   (creates a couple of projects and admin/admin user)
 """
+
 from datetime import date, timedelta
 
 from app.auth import hash_password
@@ -15,8 +16,11 @@ def run() -> None:
     today = date.today()
     with SessionLocal() as db:
         if db.query(User).count() == 0:
-            db.add(User(username="admin", password_hash=hash_password("admin"),
-                        lang="ru", is_admin=True))
+            db.add(
+                User(
+                    username="admin", password_hash=hash_password("admin"), lang="ru", is_admin=True
+                )
+            )
 
         if db.query(Project).count() == 0:
             demo = [

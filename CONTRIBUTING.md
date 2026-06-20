@@ -34,8 +34,10 @@ pytest -k import             # по подстроке имени / by name subs
 Code is linted with **ruff** (config in `ruff.toml`); CI runs the same checks.
 
 ```bash
-ruff check .        # проверить / check
-ruff check --fix .  # автоисправления / auto-fix
+ruff check .          # проверить / check
+ruff check --fix .    # автоисправления / auto-fix
+ruff format .         # отформатировать / format
+ruff format --check . # проверить формат (как в CI) / verify formatting (CI does this)
 ```
 
 Перед PR убедитесь, что `ruff check .` и `pytest` проходят.

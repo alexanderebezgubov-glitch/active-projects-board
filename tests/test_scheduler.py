@@ -1,4 +1,5 @@
 """Детекция дедлайнов и дедупликация пингов. / Deadline detection and ping dedup."""
+
 from datetime import date, timedelta
 
 from app.models import Project, ReminderLog, ensure_stage_rows
@@ -19,8 +20,8 @@ def _project_with_deadline(db, name, stage_index, deadline):
 def test_overdue_and_threshold_logged_once(db):
     today = date(2026, 6, 20)
     _project_with_deadline(db, "Overdue", 10, today - timedelta(days=1))
-    _project_with_deadline(db, "In3Days", 6, today + timedelta(days=3))   # порог 3 / threshold
-    _project_with_deadline(db, "In5Days", 6, today + timedelta(days=5))   # не порог / no threshold
+    _project_with_deadline(db, "In3Days", 6, today + timedelta(days=3))  # порог 3 / threshold
+    _project_with_deadline(db, "In5Days", 6, today + timedelta(days=5))  # не порог / no threshold
 
     check_deadlines(today=today)
     logs = db.query(ReminderLog).all()

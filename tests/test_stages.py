@@ -1,4 +1,5 @@
 """Этапы и производные свойства проекта. / Stages and derived project properties."""
+
 from datetime import date
 
 from app.models import Project, ensure_stage_rows
@@ -37,8 +38,8 @@ def test_next_deadline_skips_completed_and_undated(db):
     ensure_stage_rows(p)
     sm = p.stage_map
     sm[1].completed = True
-    sm[1].planned_date = date(2026, 1, 1)   # выполнен — игнор / done, ignored
-    sm[2].planned_date = None               # без даты — пропуск / no date, skipped
+    sm[1].planned_date = date(2026, 1, 1)  # выполнен — игнор / done, ignored
+    sm[2].planned_date = None  # без даты — пропуск / no date, skipped
     sm[3].planned_date = date(2026, 6, 25)  # ближайший актуальный / nearest active
     db.add(p)
     db.commit()

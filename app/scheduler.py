@@ -8,6 +8,7 @@ Scheduler for automatic deadline-reminder pings.
 и пинг ещё не отправлялся — рассылаем уведомление всем пользователям по их
 каналам (Telegram + email). ReminderLog защищает от повторов.
 """
+
 from __future__ import annotations
 
 import logging
@@ -27,8 +28,9 @@ from .stages import stage_name
 log = logging.getLogger("scheduler")
 
 
-def _format_message(project: Project, deadline: date, stage_index: int,
-                    days_left: int, lang: str) -> tuple[str, str]:
+def _format_message(
+    project: Project, deadline: date, stage_index: int, days_left: int, lang: str
+) -> tuple[str, str]:
     stage = stage_name(stage_index, lang)
     if days_left < 0:
         when = f"{t('overdue', lang)} ({-days_left})"
@@ -37,13 +39,17 @@ def _format_message(project: Project, deadline: date, stage_index: int,
     else:
         when = f"{days_left} {t('days_left', lang)}"
     if lang == "en":
-        body = (f"Project: {project.name}\n"
-                f"Stage: {stage_index}. {stage}\n"
-                f"Deadline: {deadline.isoformat()} — {when}")
+        body = (
+            f"Project: {project.name}\n"
+            f"Stage: {stage_index}. {stage}\n"
+            f"Deadline: {deadline.isoformat()} — {when}"
+        )
     else:
-        body = (f"Проект: {project.name}\n"
-                f"Этап: {stage_index}. {stage}\n"
-                f"Дедлайн: {deadline.isoformat()} — {when}")
+        body = (
+            f"Проект: {project.name}\n"
+            f"Этап: {stage_index}. {stage}\n"
+            f"Дедлайн: {deadline.isoformat()} — {when}"
+        )
     subject = f"⏰ {t('reminder_subject', lang)}: {project.name}"
     return subject, body
 
@@ -88,8 +94,7 @@ def check_deadlines(today: date | None = None) -> int:
 
             for user in users:
                 lang = user.lang or "ru"
-                subject, body = _format_message(
-                    project, deadline, stage_index, days_left, lang)
+                subject, body = _format_message(project, deadline, stage_index, days_left, lang)
                 if user.telegram_chat_id:
                     if send_telegram(user.telegram_chat_id, f"<b>{subject}</b>\n{body}"):
                         sent += 1
@@ -97,12 +102,14 @@ def check_deadlines(today: date | None = None) -> int:
                     if send_email(user.email, subject, body):
                         sent += 1
 
-            db.add(ReminderLog(
-                project_id=project.id,
-                stage_index=stage_index,
-                days_before=trigger_threshold,
-                deadline=deadline,
-            ))
+            db.add(
+                ReminderLog(
+                    project_id=project.id,
+                    stage_index=stage_index,
+                    days_before=trigger_threshold,
+                    deadline=deadline,
+                )
+            )
             db.commit()
     log.info("Deadline check done, %s messages sent", sent)
     return sent

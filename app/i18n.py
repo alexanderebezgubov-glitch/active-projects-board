@@ -23,8 +23,10 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
     "completed": {"ru": "Выполнено", "en": "Completed"},
     "done": {"ru": "Готово", "en": "Done"},
     "no_deadline": {"ru": "—", "en": "—"},
-    "no_projects": {"ru": "Пока нет проектов. Добавьте первый.",
-                    "en": "No projects yet. Add the first one."},
+    "no_projects": {
+        "ru": "Пока нет проектов. Добавьте первый.",
+        "en": "No projects yet. Add the first one.",
+    },
     "all_done": {"ru": "Все этапы завершены", "en": "All stages completed"},
     "overdue": {"ru": "Просрочено", "en": "Overdue"},
     "due_today": {"ru": "Сегодня", "en": "Today"},
@@ -33,8 +35,7 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
     "logout": {"ru": "Выйти", "en": "Sign out"},
     "username": {"ru": "Логин", "en": "Username"},
     "password": {"ru": "Пароль", "en": "Password"},
-    "login_error": {"ru": "Неверный логин или пароль",
-                    "en": "Invalid username or password"},
+    "login_error": {"ru": "Неверный логин или пароль", "en": "Invalid username or password"},
     "settings": {"ru": "Настройки", "en": "Settings"},
     "notifications": {"ru": "Уведомления", "en": "Notifications"},
     "telegram_chat_id": {"ru": "Telegram chat ID", "en": "Telegram chat ID"},
@@ -42,13 +43,12 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
     "language": {"ru": "Язык", "en": "Language"},
     "stages_of": {"ru": "Этапы проекта", "en": "Project stages"},
     "back_to_board": {"ru": "← К доске", "en": "← Back to board"},
-    "reminder_subject": {"ru": "Напоминание о дедлайне",
-                         "en": "Deadline reminder"},
+    "reminder_subject": {"ru": "Напоминание о дедлайне", "en": "Deadline reminder"},
     "telegram_help": {
         "ru": "Чтобы получать пинги: напишите боту в Telegram, затем впишите сюда ваш chat ID "
-              "(узнать можно через @userinfobot).",
+        "(узнать можно через @userinfobot).",
         "en": "To receive pings: message the bot in Telegram, then enter your chat ID here "
-              "(get it from @userinfobot).",
+        "(get it from @userinfobot).",
     },
     "save_settings": {"ru": "Сохранить настройки", "en": "Save settings"},
     "mark_done": {"ru": "Отметить выполненным", "en": "Mark done"},
@@ -61,13 +61,13 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
     "download_template": {"ru": "Скачать шаблон CSV", "en": "Download CSV template"},
     "import_help": {
         "ru": "Таблица с колонками: project (название), stage (№ этапа 1–29), "
-              "planned_date (ГГГГ-ММ-ДД), completed (да/нет — необязательно). "
-              "Одна строка = один дедлайн этапа. Проекты создаются автоматически, "
-              "существующие — обновляются по названию.",
+        "planned_date (ГГГГ-ММ-ДД), completed (да/нет — необязательно). "
+        "Одна строка = один дедлайн этапа. Проекты создаются автоматически, "
+        "существующие — обновляются по названию.",
         "en": "A table with columns: project (name), stage (stage no. 1–29), "
-              "planned_date (YYYY-MM-DD), completed (yes/no — optional). "
-              "One row = one stage deadline. Projects are created automatically; "
-              "existing ones are matched by name and updated.",
+        "planned_date (YYYY-MM-DD), completed (yes/no — optional). "
+        "One row = one stage deadline. Projects are created automatically; "
+        "existing ones are matched by name and updated.",
     },
     "import_done": {"ru": "Импорт завершён", "en": "Import finished"},
     "rows_applied": {"ru": "Строк применено", "en": "Rows applied"},
