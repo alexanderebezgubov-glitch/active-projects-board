@@ -46,4 +46,4 @@ jobs:
 
       - name: Run tests
         # -o addopts= очищает -q из pytest.ini, чтобы -v дал полный список тестов.
-        run: pytest -o addopts= -v --cov=app --cov-report=term-missing
+        run: pytest -o addopts= -v --cov=app --cov-report=term-missing --cov-fail-under=70
