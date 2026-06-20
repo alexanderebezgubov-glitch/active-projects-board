@@ -1,5 +1,7 @@
 # Доска активных объектов / Active Projects Board
 
+[![CI](https://github.com/alexanderebezgubov-glitch/active-projects-board/actions/workflows/ci.yml/badge.svg)](https://github.com/alexanderebezgubov-glitch/active-projects-board/actions/workflows/ci.yml)
+
 Веб-приложение для отслеживания строительных/отделочных проектов: на каком из
 **29 этапов** находится каждый объект, какой у него **ближайший дедлайн**, плюс
 **автопинги** в Telegram и по email о приближающихся сроках. Интерфейс на
