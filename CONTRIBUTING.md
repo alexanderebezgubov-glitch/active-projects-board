@@ -28,6 +28,19 @@ pytest -k import             # по подстроке имени / by name subs
 
 Ожидаемо: `14 passed`. / Expected: `14 passed`.
 
+## Линтер / Linting
+
+Код проверяется линтером **ruff** (конфиг — `ruff.toml`). Те же проверки гоняет CI.
+Code is linted with **ruff** (config in `ruff.toml`); CI runs the same checks.
+
+```bash
+ruff check .        # проверить / check
+ruff check --fix .  # автоисправления / auto-fix
+```
+
+Перед PR убедитесь, что `ruff check .` и `pytest` проходят.
+Before a PR, make sure both `ruff check .` and `pytest` pass.
+
 ### Что важно знать / Good to know
 
 - Тесты **изолированы**: `tests/conftest.py` указывает `DATABASE_URL` на временную

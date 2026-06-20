@@ -24,7 +24,7 @@ def test_overdue_and_threshold_logged_once(db):
 
     check_deadlines(today=today)
     logs = db.query(ReminderLog).all()
-    triggered = {db.get(Project, l.project_id).name: l.days_before for l in logs}
+    triggered = {db.get(Project, row.project_id).name: row.days_before for row in logs}
     assert triggered == {"Overdue": -1, "In3Days": 3}
 
     # повторный прогон не плодит записи / second run does not duplicate

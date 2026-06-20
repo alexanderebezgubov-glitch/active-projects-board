@@ -10,7 +10,7 @@ def test_csv_semicolon_russian_headers_and_dates(db):
     raw = ("проект;этап;дата;выполнено\n"
            "Офис А;5;20.06.2026;да\n"
            "Офис А;6;25.06.2026;нет\n"
-           "Кафе Б;14;2026-07-02;\n").encode("utf-8")
+           "Кафе Б;14;2026-07-02;\n").encode()
     rows = parse_upload("data.csv", raw)
     result = apply_rows(db, rows)
 

@@ -1,0 +1,15 @@
+# Конфигурация ruff. / Ruff configuration.
+target-version = "py312"
+line-length = 100
+
+[lint]
+# E/W — pycodestyle, F — pyflakes, I — isort (порядок импортов),
+# B — bugbear, UP — pyupgrade, C4 — comprehensions.
+select = ["E", "W", "F", "I", "B", "UP", "C4"]
+# B008: вызовы Depends()/Form()/File() в дефолтах — идиома FastAPI, не баг.
+# B008: Depends()/Form()/File() in defaults is the FastAPI idiom, not a bug.
+ignore = ["B008"]
+
+[lint.per-file-ignores]
+# В тестах допускаем «магические» конструкции и длинные литералы.
+"tests/*" = ["B011"]
