@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="board-head">
+  <h1>{{ t('board') }}</h1>
+  <form method="post" action="/projects/new" class="inline-add">
+    <input type="text" name="name" placeholder="{{ t('name') }}" required>
+    <button type="submit" class="btn primary">+ {{ t('add_project') }}</button>
+  </form>
+</div>
+
+{% if not rows %}
+  <p class="muted">{{ t('no_projects') }}</p>
+{% else %}
+<table class="board">
+  <thead>
+    <tr>
+      <th>{{ t('project') }}</th>
+      <th>{{ t('current_stage') }}</th>
+      <th>{{ t('progress') }}</th>
+      <th>{{ t('next_deadline') }}</th>
+      <th>{{ t('status') }}</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for r in rows %}
+    <tr class="status-{{ r.status }}">
+      <td class="pname"><a href="/projects/{{ r.project.id }}">{{ r.project.name }}</a></td>
+      <td>
+        {% if r.stage_index %}
+          <span class="stage-no">{{ r.stage_index }}</span> {{ stage_name(r.stage_index) }}
+        {% else %}
+          <span class="badge done">✓ {{ t('all_done') }}</span>
+        {% endif %}
+      </td>
+      <td class="progress-cell">
+        <div class="bar"><div class="fill" style="width: {{ (r.completed / STAGE_COUNT * 100) | round(0) }}%"></div></div>
+        <span class="muted small">{{ r.completed }}/{{ STAGE_COUNT }}</span>
+      </td>
+      <td>{{ r.deadline.isoformat() if r.deadline else t('no_deadline') }}</td>
+      <td>
+        {% if r.status == 'done' %}
+          <span class="badge done">{{ t('done') }}</span>
+        {% elif r.days_left is none %}
+          <span class="badge none">—</span>
+        {% elif r.days_left < 0 %}
+          <span class="badge overdue">{{ t('overdue') }} {{ -r.days_left }}</span>
+        {% elif r.days_left == 0 %}
+          <span class="badge urgent">{{ t('due_today') }}</span>
+        {% else %}
+          <span class="badge {{ r.status }}">{{ r.days_left }} {{ t('days_left') }}</span>
+        {% endif %}
+      </td>
+      <td><a class="btn small" href="/projects/{{ r.project.id }}">{{ t('edit') }}</a></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+{% endblock %}

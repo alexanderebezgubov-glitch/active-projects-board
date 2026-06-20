@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block content %}
+<a class="muted" href="/">{{ t('back_to_board') }}</a>
+<form method="post" action="/projects/{{ project.id }}" class="project-form">
+  <div class="board-head">
+    <input class="title-input" type="text" name="name" value="{{ project.name }}" required>
+    <button type="submit" class="btn primary">{{ t('save') }}</button>
+  </div>
+
+  <h2>{{ t('stages_of') }}</h2>
+  <table class="stages">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>{{ t('stage') }}</th>
+        <th>{{ t('planned_date') }}</th>
+        <th>{{ t('completed') }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for s in STAGES %}
+      {% set row = stage_map[s.index] %}
+      <tr class="{{ 'row-done' if row.completed else '' }}">
+        <td class="stage-no">{{ s.index }}</td>
+        <td>{{ s.en if lang == 'en' else s.ru }}</td>
+        <td>
+          <input type="date" name="date_{{ s.index }}"
+                 value="{{ row.planned_date.isoformat() if row.planned_date else '' }}">
+        </td>
+        <td class="center">
+          <input type="checkbox" name="done_{{ s.index }}" {{ 'checked' if row.completed else '' }}>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="form-actions">
+    <button type="submit" class="btn primary">{{ t('save') }}</button>
+    <a class="btn" href="/">{{ t('cancel') }}</a>
+  </div>
+</form>
+
+<form method="post" action="/projects/{{ project.id }}/delete"
+      onsubmit="return confirm('{{ t('confirm_delete') }}')" class="danger-form">
+  <button type="submit" class="btn danger">{{ t('delete') }}</button>
+</form>
+{% endblock %}

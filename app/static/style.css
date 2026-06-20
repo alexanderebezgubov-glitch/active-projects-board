@@ -1,0 +1,100 @@
+:root {
+  --bg: #f4f6f8;
+  --card: #ffffff;
+  --ink: #1f2933;
+  --muted: #7b8794;
+  --line: #e1e7ec;
+  --primary: #2563eb;
+  --ok: #16a34a;
+  --soon: #d97706;
+  --urgent: #dc2626;
+  --overdue: #b91c1c;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font: 15px/1.5 -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+}
+a { color: var(--primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  background: #fff; border-bottom: 1px solid var(--line);
+  padding: 12px 24px;
+}
+.brand { font-weight: 700; font-size: 16px; color: var(--ink); }
+.topnav { display: flex; align-items: center; gap: 14px; }
+.topnav .sep { color: var(--line); }
+.who { color: var(--muted); }
+.langswitch a { color: var(--muted); font-weight: 600; padding: 2px 4px; }
+.langswitch a.active { color: var(--primary); text-decoration: underline; }
+
+.container { max-width: 1080px; margin: 24px auto; padding: 0 20px; }
+
+.board-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+h1 { font-size: 22px; margin: 0 0 16px; }
+h2 { font-size: 16px; margin: 22px 0 10px; }
+
+.inline-add { display: flex; gap: 8px; }
+.inline-add input { padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; }
+
+.btn {
+  display: inline-block; padding: 8px 14px; border-radius: 8px;
+  border: 1px solid var(--line); background: #fff; color: var(--ink);
+  cursor: pointer; font-size: 14px;
+}
+.btn:hover { background: #f0f3f6; text-decoration: none; }
+.btn.primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+.btn.primary:hover { background: #1d4fd7; }
+.btn.danger { background: #fff; color: var(--urgent); border-color: #f3c4c4; }
+.btn.small { padding: 4px 10px; font-size: 13px; }
+
+table.board, table.stages {
+  width: 100%; border-collapse: collapse; background: var(--card);
+  border: 1px solid var(--line); border-radius: 10px; overflow: hidden; margin-top: 12px;
+}
+.board th, .board td, .stages th, .stages td {
+  padding: 10px 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: middle;
+}
+.board th, .stages th { background: #fafbfc; color: var(--muted); font-weight: 600; font-size: 13px; }
+.board tr:last-child td, .stages tr:last-child td { border-bottom: none; }
+.pname a { font-weight: 600; }
+.stage-no {
+  display: inline-block; min-width: 22px; text-align: center; color: var(--muted);
+  font-weight: 700; font-size: 12px; background: #eef2f6; border-radius: 6px; padding: 1px 5px;
+}
+
+.badge { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+.badge.done, .badge.ok { background: #e7f6ec; color: var(--ok); }
+.badge.soon { background: #fdf0db; color: var(--soon); }
+.badge.urgent { background: #fde4e4; color: var(--urgent); }
+.badge.overdue { background: #f8d7da; color: var(--overdue); }
+.badge.none { background: #eef2f6; color: var(--muted); }
+
+tr.status-overdue td { background: #fff6f6; }
+tr.status-urgent td { background: #fff9f3; }
+
+.progress-cell { white-space: nowrap; }
+.bar { display: inline-block; width: 90px; height: 8px; background: #eef2f6; border-radius: 999px; overflow: hidden; vertical-align: middle; }
+.bar .fill { height: 100%; background: var(--ok); }
+.small { font-size: 12px; }
+.muted { color: var(--muted); }
+
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 24px; max-width: 520px; }
+.login-card { margin: 60px auto; }
+form label { display: block; margin: 12px 0; font-size: 14px; color: var(--muted); }
+form label input[type=text], form label input[type=password], form label input[type=email] {
+  display: block; width: 100%; margin-top: 4px; padding: 9px 11px;
+  border: 1px solid var(--line); border-radius: 8px; font-size: 15px; color: var(--ink);
+}
+label.radio { display: inline-flex; align-items: center; gap: 6px; margin-right: 18px; color: var(--ink); }
+.error { color: var(--urgent); }
+.ok-msg { color: var(--ok); }
+
+.title-input { font-size: 20px; font-weight: 700; padding: 6px 10px; border: 1px solid var(--line); border-radius: 8px; min-width: 280px; }
+.stages td input[type=date] { padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; }
+.stages .center { text-align: center; }
+.stages tr.row-done td { background: #f3faf5; color: var(--muted); }
+.form-actions { margin: 18px 0; display: flex; gap: 10px; }
+.danger-form { margin-top: 8px; }

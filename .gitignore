@@ -1,0 +1,11 @@
+# Окружение / environment
+.venv/
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# База данных / database
+*.db

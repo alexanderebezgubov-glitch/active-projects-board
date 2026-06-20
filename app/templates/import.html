@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content %}
+<a class="muted" href="/">{{ t('back_to_board') }}</a>
+<div class="card" style="max-width: 640px;">
+  <h1>{{ t('import_data') }}</h1>
+  <p class="muted small">{{ t('import_help') }}</p>
+
+  {% if error %}<p class="error">{{ error }}</p>{% endif %}
+
+  {% if result %}
+  <div class="import-result">
+    <h2>✓ {{ t('import_done') }}</h2>
+    <ul>
+      <li>{{ t('rows_applied') }}: <b>{{ result.applied }}</b> / {{ result.total_rows }}</li>
+      <li>{{ t('projects_created') }}: <b>{{ result.created | length }}</b>
+        {% if result.created %}<span class="muted">({{ result.created | join(', ') }})</span>{% endif %}</li>
+      <li>{{ t('projects_updated') }}: <b>{{ result.updated | length }}</b>
+        {% if result.updated %}<span class="muted">({{ result.updated | join(', ') }})</span>{% endif %}</li>
+    </ul>
+    {% if result.errors %}
+      <p class="error">{{ t('errors') }} ({{ result.errors | length }}):</p>
+      <ul class="error">{% for e in result.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+    {% endif %}
+    <a class="btn" href="/">{{ t('back_to_board') }}</a>
+  </div>
+  {% endif %}
+
+  <form method="post" action="/import" enctype="multipart/form-data">
+    <label>{{ t('upload_file') }}
+      <input type="file" name="file" accept=".csv,.xlsx,.xlsm,.txt" required>
+    </label>
+    <div class="form-actions">
+      <button type="submit" class="btn primary">{{ t('run_import') }}</button>
+      <a class="btn" href="/import/template.csv">⬇ {{ t('download_template') }}</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
