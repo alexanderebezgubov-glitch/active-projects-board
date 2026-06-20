@@ -1,60 +1,164 @@
 {% extends "base.html" %}
 {% block content %}
+
 <div class="board-head">
   <h1>{{ t('board') }}</h1>
-  <form method="post" action="/projects/new" class="inline-add">
-    <input type="text" name="name" placeholder="{{ t('name') }}" required>
-    <button type="submit" class="btn primary">+ {{ t('add_project') }}</button>
-  </form>
+  <button class="btn" onclick="openModal()">+ {{ t('add_project') }}</button>
 </div>
+
+<div class="summary">
+  <div class="stat s-act"><div class="n">{{ summary.active }}</div><div class="l">{{ t('active') }}</div></div>
+  <div class="stat s-soon"><div class="n">{{ summary.soon }}</div><div class="l">{{ t('due_soon') }}</div></div>
+  <div class="stat s-over"><div class="n">{{ summary.over }}</div><div class="l">{{ t('overdue') }}</div></div>
+</div>
+
+<section class="ping">
+  <h2>
+    <span>🔔 {{ t('reminder_centre') }}</span>
+    {% if reminders %}<span class="badge">{{ reminders|length }}</span>{% endif %}
+    <form method="post" action="/set-threshold" class="threshold">
+      <span>{{ t('threshold_lbl') }}</span>
+      <input type="number" name="threshold" min="1" max="60" value="{{ threshold }}"
+             onchange="this.form.submit()">
+      <span>{{ t('days') }}</span>
+    </form>
+  </h2>
+  <div class="ping-body">
+    {% if not reminders %}
+      <div class="ping-empty">{{ t('empty_ping') }}</div>
+    {% else %}
+      {% for r in reminders %}
+      <div class="ping-row">
+        <div class="ping-icon">{{ r.icon }}</div>
+        <div class="ping-main">
+          <div class="t">{{ r.p.name }} · <span class="muted">{{ r.p.contact or '' }}</span></div>
+          <div class="msg">{{ r.message }}</div>
+        </div>
+        <div class="ping-when {{ r.when_cls }}">{{ r.when }}</div>
+      </div>
+      {% endfor %}
+    {% endif %}
+  </div>
+</section>
 
 {% if not rows %}
   <p class="muted">{{ t('no_projects') }}</p>
-{% else %}
-<table class="board">
-  <thead>
-    <tr>
-      <th>{{ t('project') }}</th>
-      <th>{{ t('current_stage') }}</th>
-      <th>{{ t('progress') }}</th>
-      <th>{{ t('next_deadline') }}</th>
-      <th>{{ t('status') }}</th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for r in rows %}
-    <tr class="status-{{ r.status }}">
-      <td class="pname"><a href="/projects/{{ r.project.id }}">{{ r.project.name }}</a></td>
-      <td>
-        {% if r.stage_index %}
-          <span class="stage-no">{{ r.stage_index }}</span> {{ stage_name(r.stage_index) }}
-        {% else %}
-          <span class="badge done">✓ {{ t('all_done') }}</span>
-        {% endif %}
-      </td>
-      <td class="progress-cell">
-        <div class="bar"><div class="fill" style="width: {{ (r.completed / STAGE_COUNT * 100) | round(0) }}%"></div></div>
-        <span class="muted small">{{ r.completed }}/{{ STAGE_COUNT }}</span>
-      </td>
-      <td>{{ r.deadline.isoformat() if r.deadline else t('no_deadline') }}</td>
-      <td>
-        {% if r.status == 'done' %}
-          <span class="badge done">{{ t('done') }}</span>
-        {% elif r.days_left is none %}
-          <span class="badge none">—</span>
-        {% elif r.days_left < 0 %}
-          <span class="badge overdue">{{ t('overdue') }} {{ -r.days_left }}</span>
-        {% elif r.days_left == 0 %}
-          <span class="badge urgent">{{ t('due_today') }}</span>
-        {% else %}
-          <span class="badge {{ r.status }}">{{ r.days_left }} {{ t('days_left') }}</span>
-        {% endif %}
-      </td>
-      <td><a class="btn small" href="/projects/{{ r.project.id }}">{{ t('edit') }}</a></td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
 {% endif %}
+
+<div class="board">
+  {% for r in rows %}
+  {% set p = r.p %}
+  <div class="card">
+    <div class="card-top">
+      <div class="name"><a href="/projects/{{ p.id }}">{{ p.name }}</a></div>
+      <div class="spacer"></div>
+      <span class="chip">{{ '✈️ Telegram' if p.channel == 'telegram' else '🟢 WhatsApp' }}</span>
+      <span class="chip due {{ r.final_label.cls }}">{{ t('final') }}: {{ r.final_date }} · {{ r.final_label.txt }}</span>
+    </div>
+
+    <div class="stage-now">
+      <span class="idx">{{ (r.cur or STAGE_COUNT) }}/{{ STAGE_COUNT }}</span>
+      <span class="nm">{{ r.stage_name }}</span>
+    </div>
+    <div class="stage-meta">
+      <span><b>{{ t('next_dl') }}:</b> {% if r.next_idx %}№{{ r.next_idx }} · {{ r.next_date }}{% else %}{{ t('no_dl') }}{% endif %}</span>
+      <span class="chip due {{ r.stage_label.cls }}" style="padding:1px 8px">{{ t('stage') }}: {{ r.stage_label.txt }}</span>
+    </div>
+
+    <div class="rail">
+      {% for c in r.cells %}
+      <div class="seg-cell {{ c.state }} {{ 'flag' if c.flag }}"
+           data-i="{{ c.i }}" data-name="{{ c.name }}"
+           data-info="{% if c.date %}{{ t('next_dl') }}: {{ c.date }} · {{ c.label }}{% else %}{{ t('no_dl') }}{% endif %}"></div>
+      {% endfor %}
+    </div>
+    <div class="rail-scale"><span>01</span><span>10</span><span>20</span><span>{{ STAGE_COUNT }}</span></div>
+
+    <div class="card-actions">
+      <form method="post" action="/projects/{{ p.id }}/advance">
+        <button class="btn" {{ 'disabled' if r.all_done else '' }}>{{ t('advance') }}</button>
+      </form>
+      <form method="post" action="/projects/{{ p.id }}/back">
+        <button class="btn ghost" {{ 'disabled' if r.completed == 0 else '' }}>{{ t('back') }}</button>
+      </form>
+      <button class="btn ghost"
+              onclick="openModal('{{ p.id }}', {{ p.name|tojson }}, '{{ r.final_iso }}', '{{ p.channel }}', {{ (p.contact or '')|tojson }})">✎</button>
+      <a class="btn ghost small" href="/projects/{{ p.id }}">{{ t('open_stages') }}</a>
+      <form method="post" action="/projects/{{ p.id }}/delete"
+            onsubmit="return confirm('{{ t('confirm_delete') }}')">
+        <button class="btn danger">{{ t('delete') }}</button>
+      </form>
+    </div>
+
+    <div class="mini-fields">
+      {% if r.cur %}
+      <form method="post" action="/projects/{{ p.id }}/stage-deadline" class="field">
+        <label>{{ t('stage_deadline') }} №{{ r.cur }}</label>
+        <input type="date" name="date" value="{{ r.stage_dl_iso }}" onchange="this.form.submit()">
+      </form>
+      {% endif %}
+      <form method="post" action="/projects/{{ p.id }}/final-deadline" class="field">
+        <label>{{ t('final') }}</label>
+        <input type="date" name="date" value="{{ r.final_iso }}" onchange="this.form.submit()">
+      </form>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<div class="note"><b>ℹ</b> {{ t('deadline_note') }}</div>
+
+<div id="tip"><div class="tt-idx"></div><div class="tt-nm"></div><div class="tt-dl"></div></div>
+
+<div class="ovl" id="ovl">
+  <form class="modal" method="post" action="/save-project">
+    <h3 id="modalTitle">{{ t('new_project') }}</h3>
+    <input type="hidden" name="id" id="mId" value="">
+    <div class="field"><label>{{ t('proj_name') }}</label>
+      <input type="text" name="name" id="mName" placeholder="Office 1204, JLT" required></div>
+    <div class="field"><label>{{ t('final_dl') }}</label>
+      <input type="date" name="final" id="mFinal"></div>
+    <div class="field"><label>{{ t('channel') }}</label>
+      <select name="channel" id="mChannel">
+        <option value="telegram">Telegram</option>
+        <option value="whatsapp">WhatsApp</option>
+      </select></div>
+    <div class="field"><label>{{ t('contact') }}</label>
+      <input type="text" name="contact" id="mContact" placeholder="@pm_alex / +9715xxxxxxx"></div>
+    <div class="modal-actions">
+      <button type="button" class="btn ghost" onclick="closeModal()">{{ t('cancel') }}</button>
+      <button type="submit" class="btn">{{ t('save') }}</button>
+    </div>
+  </form>
+</div>
+
+<script>
+  const ovl = document.getElementById('ovl');
+  function openModal(id, name, final, channel, contact) {
+    document.getElementById('modalTitle').textContent =
+      id ? {{ t('edit_project')|tojson }} : {{ t('new_project')|tojson }};
+    document.getElementById('mId').value = id || '';
+    document.getElementById('mName').value = name || '';
+    document.getElementById('mFinal').value = final || '';
+    document.getElementById('mChannel').value = channel || 'telegram';
+    document.getElementById('mContact').value = contact || '';
+    ovl.classList.add('on');
+  }
+  function closeModal() { ovl.classList.remove('on'); }
+  ovl.addEventListener('click', e => { if (e.target === ovl) closeModal(); });
+
+  const tip = document.getElementById('tip');
+  document.querySelectorAll('.seg-cell').forEach(c => {
+    c.addEventListener('mousemove', e => {
+      tip.querySelector('.tt-idx').textContent = '№' + c.dataset.i + '/{{ STAGE_COUNT }}';
+      tip.querySelector('.tt-nm').textContent = c.dataset.name;
+      tip.querySelector('.tt-dl').textContent = c.dataset.info;
+      tip.style.opacity = 1;
+      let x = e.clientX + 14, y = e.clientY + 14;
+      if (x + 250 > innerWidth) x = e.clientX - 250;
+      tip.style.left = x + 'px'; tip.style.top = y + 'px';
+    });
+    c.addEventListener('mouseleave', () => tip.style.opacity = 0);
+  });
+</script>
 {% endblock %}

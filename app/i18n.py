@@ -74,6 +74,42 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
     "projects_created": {"ru": "Создано проектов", "en": "Projects created"},
     "projects_updated": {"ru": "Обновлено проектов", "en": "Projects updated"},
     "errors": {"ru": "Ошибки", "en": "Errors"},
+    # --- редизайн «BuildBoard» / "BuildBoard" redesign ---
+    "brand": {"ru": "СтройБорд", "en": "BuildBoard"},
+    "brand_sub": {"ru": "ОБЪЕКТЫ", "en": "FIT-OUT"},
+    "active": {"ru": "Активные", "en": "Active"},
+    "due_soon": {"ru": "Скоро дедлайн", "en": "Due soon"},
+    "reminder_centre": {"ru": "Центр напоминаний", "en": "Reminder centre"},
+    "threshold_lbl": {"ru": "Порог", "en": "Window"},
+    "days": {"ru": "дн.", "en": "d"},
+    "left": {"ru": "осталось", "en": "left"},
+    "overdue_by": {"ru": "просрочка", "en": "overdue"},
+    "no_dl": {"ru": "не задан", "en": "not set"},
+    "next_dl": {"ru": "След. дедлайн", "en": "Next deadline"},
+    "final": {"ru": "Сдача", "en": "Handover"},
+    "advance": {"ru": "Этап выполнен →", "en": "Stage done →"},
+    "back": {"ru": "← Назад", "en": "← Back"},
+    "stage_deadline": {"ru": "Дедлайн этапа", "en": "Stage deadline"},
+    "empty_ping": {
+        "ru": "Нет приближающихся дедлайнов в пределах порога. Всё под контролем.",
+        "en": "No deadlines within the window. All clear.",
+    },
+    "ping_stage": {"ru": "Дедлайн этапа", "en": "Stage deadline"},
+    "ping_final": {"ru": "Дедлайн сдачи объекта", "en": "Project handover deadline"},
+    "reminder_hi": {"ru": "Напоминание", "en": "Reminder"},
+    "new_project": {"ru": "Новый проект", "en": "New project"},
+    "edit_project": {"ru": "Редактировать проект", "en": "Edit project"},
+    "proj_name": {"ru": "Название проекта", "en": "Project name"},
+    "final_dl": {"ru": "Финальный дедлайн (сдача)", "en": "Final deadline (handover)"},
+    "channel": {"ru": "Канал напоминаний", "en": "Reminder channel"},
+    "contact": {"ru": "Получатель (@username / телефон)", "en": "Recipient (@username / phone)"},
+    "open_stages": {"ru": "Все этапы", "en": "All stages"},
+    "deadline_note": {
+        "ru": "Реальная отправка пингов в Telegram/WhatsApp выполняется серверным ботом "
+        "по расписанию (см. README). Тексты ниже — то, что уйдёт в мессенджер.",
+        "en": "Actual Telegram/WhatsApp delivery is handled by the scheduled server bot "
+        "(see README). The texts below are exactly what gets sent.",
+    },
 }
 
 

@@ -13,7 +13,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 from starlette.middleware.sessions import SessionMiddleware
 
-from . import config
+from . import board_view, config
 from .auth import authenticate, current_user, hash_password
 from .db import get_session, init_db
 from .i18n import normalize_lang, t
@@ -137,43 +137,41 @@ def set_lang(lang: str, request: Request, db: Session = Depends(get_session)):
 # --- Доска / board ---
 
 
+def get_threshold(request: Request) -> int:
+    try:
+        return max(1, min(60, int(request.session.get("threshold", 3))))
+    except (TypeError, ValueError):
+        return 3
+
+
 @app.get("/", response_class=HTMLResponse)
 def board(request: Request, db: Session = Depends(get_session)):
     user = require_user(request, db)
     if isinstance(user, RedirectResponse):
         return user
     lang = get_lang(request, user)
-    projects = list(db.scalars(select(Project).order_by(Project.name)))
-    rows = []
+    threshold = get_threshold(request)
     today = date.today()
-    for p in projects:
-        idx = p.current_stage_index
-        deadline = p.next_deadline
-        days_left = (deadline - today).days if deadline else None
-        if idx is None:
-            status = "done"
-        elif days_left is None:
-            status = "none"
-        elif days_left < 0:
-            status = "overdue"
-        elif days_left <= 1:
-            status = "urgent"
-        elif days_left <= 7:
-            status = "soon"
-        else:
-            status = "ok"
-        rows.append(
-            {
-                "project": p,
-                "stage_index": idx,
-                "deadline": deadline,
-                "days_left": days_left,
-                "status": status,
-                "completed": p.completed_count,
-            }
-        )
-    rows.sort(key=lambda r: (r["deadline"] is None, r["deadline"] or date.max))
-    return render(request, "board.html", lang, user, rows=rows)
+    projects = list(db.scalars(select(Project).order_by(Project.name)))
+    return render(
+        request,
+        "board.html",
+        lang,
+        user,
+        rows=board_view.board_rows(projects, today, threshold, lang),
+        reminders=board_view.reminder_rows(projects, today, threshold, lang),
+        summary=board_view.summary(projects, today, threshold),
+        threshold=threshold,
+    )
+
+
+@app.post("/set-threshold")
+def set_threshold(request: Request, threshold: int = Form(3), db: Session = Depends(get_session)):
+    user = require_user(request, db)
+    if isinstance(user, RedirectResponse):
+        return user
+    request.session["threshold"] = max(1, min(60, threshold))
+    return RedirectResponse("/", status_code=303)
 
 
 # --- Проекты / projects ---
@@ -245,6 +243,102 @@ def delete_project(project_id: int, request: Request, db: Session = Depends(get_
     project = db.get(Project, project_id)
     if project:
         db.delete(project)
+        db.commit()
+    return RedirectResponse("/", status_code=303)
+
+
+@app.post("/save-project")
+def save_project(
+    request: Request,
+    id: str = Form(""),
+    name: str = Form(...),
+    final: str = Form(""),
+    channel: str = Form("telegram"),
+    contact: str = Form(""),
+    db: Session = Depends(get_session),
+):
+    """Создать или обновить мета-данные проекта (из модалки). / Create or edit project meta."""
+    user = require_user(request, db)
+    if isinstance(user, RedirectResponse):
+        return user
+    name = name.strip()
+    if not name:
+        return RedirectResponse("/", status_code=303)
+    channel = channel if channel in ("telegram", "whatsapp") else "telegram"
+    project = db.get(Project, int(id)) if id.strip().isdigit() else None
+    if project is None:
+        project = Project(name=name)
+        ensure_stage_rows(project)
+        db.add(project)
+    project.name = name
+    project.final_deadline = _parse_date(final.strip())
+    project.channel = channel
+    project.contact = contact.strip() or None
+    db.commit()
+    return RedirectResponse("/", status_code=303)
+
+
+@app.post("/projects/{project_id}/advance")
+def advance_stage(project_id: int, request: Request, db: Session = Depends(get_session)):
+    """Отметить текущий этап выполненным. / Mark the current stage done."""
+    user = require_user(request, db)
+    if isinstance(user, RedirectResponse):
+        return user
+    project = db.get(Project, project_id)
+    if project:
+        idx = project.current_stage_index
+        if idx is not None:
+            row = project.stage_map[idx]
+            row.completed = True
+            row.completed_at = datetime.utcnow()
+            db.commit()
+    return RedirectResponse("/", status_code=303)
+
+
+@app.post("/projects/{project_id}/back")
+def back_stage(project_id: int, request: Request, db: Session = Depends(get_session)):
+    """Вернуть последний завершённый этап в работу. / Reopen the last completed stage."""
+    user = require_user(request, db)
+    if isinstance(user, RedirectResponse):
+        return user
+    project = db.get(Project, project_id)
+    if project:
+        done = [s for s in project.stages if s.completed]
+        if done:
+            row = max(done, key=lambda s: s.stage_index)
+            row.completed = False
+            row.completed_at = None
+            db.commit()
+    return RedirectResponse("/", status_code=303)
+
+
+@app.post("/projects/{project_id}/stage-deadline")
+def set_stage_deadline(
+    project_id: int, request: Request, date: str = Form(""), db: Session = Depends(get_session)
+):
+    """Дедлайн текущего этапа. / Planned date of the current stage."""
+    user = require_user(request, db)
+    if isinstance(user, RedirectResponse):
+        return user
+    project = db.get(Project, project_id)
+    if project:
+        idx = project.current_stage_index
+        if idx is not None:
+            project.stage_map[idx].planned_date = _parse_date(date.strip())
+            db.commit()
+    return RedirectResponse("/", status_code=303)
+
+
+@app.post("/projects/{project_id}/final-deadline")
+def set_final_deadline(
+    project_id: int, request: Request, date: str = Form(""), db: Session = Depends(get_session)
+):
+    user = require_user(request, db)
+    if isinstance(user, RedirectResponse):
+        return user
+    project = db.get(Project, project_id)
+    if project:
+        project.final_deadline = _parse_date(date.strip())
         db.commit()
     return RedirectResponse("/", status_code=303)
 

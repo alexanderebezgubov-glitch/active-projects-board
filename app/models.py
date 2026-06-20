@@ -36,6 +36,9 @@ class Project(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(255))
+    final_deadline: Mapped[date | None] = mapped_column(Date, default=None)
+    channel: Mapped[str] = mapped_column(String(16), default="telegram")
+    contact: Mapped[str | None] = mapped_column(String(128), default=None)
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
 
     stages: Mapped[list[ProjectStage]] = relationship(

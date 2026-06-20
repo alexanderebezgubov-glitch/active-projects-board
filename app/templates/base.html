@@ -3,12 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{{ t('app_title') }}</title>
+  <title>{{ t('brand') }} · {{ t('app_title') }}</title>
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
 <header class="topbar">
-  <a class="brand" href="/">📋 {{ t('app_title') }}</a>
+  <a class="brand" href="/"><b>{{ t('brand') }}</b><span class="num">{{ t('brand_sub') }}</span></a>
+  <div class="spacer"></div>
   <nav class="topnav">
     {% if user %}
       <a href="/">{{ t('board') }}</a>
@@ -16,12 +17,11 @@
       <a href="/settings">{{ t('settings') }}</a>
       <span class="sep">|</span>
     {% endif %}
-    <span class="langswitch">
-      <a href="/set-lang/ru" class="{{ 'active' if lang == 'ru' else '' }}">RU</a>
-      <a href="/set-lang/en" class="{{ 'active' if lang == 'en' else '' }}">EN</a>
+    <span class="langseg">
+      <a href="/set-lang/ru" class="{{ 'on' if lang == 'ru' else '' }}">RU</a>
+      <a href="/set-lang/en" class="{{ 'on' if lang == 'en' else '' }}">EN</a>
     </span>
     {% if user %}
-      <span class="sep">|</span>
       <span class="who">{{ user.username }}</span>
       <a href="/logout">{{ t('logout') }}</a>
     {% endif %}
